@@ -1,261 +1,276 @@
-const startButton = document.getElementById('start-btn');
-const nextButton = document.getElementById('next-btn');
-const questionContainerElement = document.getElementById('question-container');
-const questionElement = document.getElementById('question');
-const answerButtonsElement = document.getElementById('answer-buttons');
-const scoreContainer = document.getElementById('score-container');
-const scoreText = document.getElementById('score');
-const totalText = document.getElementById('total');
-const restartButton = document.getElementById('restart-btn');
-const progressText = document.getElementById('current-question-number');
-const totalQuestionsText = document.getElementById('total-questions');
-const timerElement = document.getElementById('time');
+/* Quiz avançado: timer, pontos (base + tempo + streak), leaderboard (localStorage), analytics */
+const startBtn = document.getElementById('start-btn');
+const nextBtn = document.getElementById('next-btn');
+const qb = document.getElementById('question-area');
+const questionEl = document.getElementById('question');
+const answerBtns = document.getElementById('answer-buttons');
+const explanationEl = document.getElementById('explanation');
+const timerEl = document.getElementById('time');
+const progressEl = document.getElementById('current-question-number');
+const totalQuestionsEl = document.getElementById('total-questions');
+const playerNameInput = document.getElementById('player-name');
 
-let questions = [
-  {
-    question: "Qual é a capital da Austrália?",
-    answers: [
-      { text: "Sydney", correct: false },
-      { text: "Melbourne", correct: false },
-      { text: "Canberra", correct: true },
-      { text: "Brisbane", correct: false }
-    ],
-    explanation: "A capital da Austrália é Canberra, que foi escolhida como um compromisso entre Sydney e Melbourne."
-  },
-  {
-    question: "Qual elemento químico tem símbolo 'Fe'?",
-    answers: [
-      { text: "Ferro", correct: true },
-      { text: "Flúor", correct: false },
-      { text: "Fósforo", correct: false },
-      { text: "Francium", correct: false }
-    ],
-    explanation: "Fe é o símbolo químico do Ferro no sistema periódico."
-  },
-  {
-    question: "Quem escreveu “Dom Quixote”?",
-    answers: [
-      { text: "Miguel de Cervantes", correct: true },
-      { text: "William Shakespeare", correct: false },
-      { text: "Machado de Assis", correct: false },
-      { text: "Victor Hugo", correct: false }
-    ],
-    explanation: "Dom Quixote foi escrito por Miguel de Cervantes, autor espanhol."
-  },
-  {
-    question: "Em que ano terminou a Segunda Guerra Mundial?",
-    answers: [
-      { text: "1944", correct: false },
-      { text: "1945", correct: true },
-      { text: "1946", correct: false },
-      { text: "1943", correct: false }
-    ],
-    explanation: "A Segunda Guerra Mundial terminou em 1945."
-  },
-  {
-    question: "Qual o maior planeta do sistema solar?",
-    answers: [
-      { text: "Terra", correct: false },
-      { text: "Marte", correct: false },
-      { text: "Júpiter", correct: true },
-      { text: "Saturno", correct: false }
-    ],
-    explanation: "Júpiter é o maior planeta em massa e volume no sistema solar."
-  },
-  {
-    question: "Verdadeiro ou falso: O corpo humano possui quatro pulmões.",
-    answers: [
-      { text: "Verdadeiro", correct: false },
-      { text: "Falso", correct: true }
-    ],
-    explanation: "É falso — o corpo humano tem dois pulmões."
-  },
-  {
-    question: "Qual país é conhecido pela Torre Eiffel?",
-    answers: [
-      { text: "Itália", correct: false },
-      { text: "França", correct: true },
-      { text: "Inglaterra", correct: false },
-      { text: "Alemanha", correct: false }
-    ],
-    explanation: "A Torre Eiffel está localizada em Paris, que é a capital da França."
-  },
-  {
-    question: "Quem pintou a “Noite Estrelada”?",
-    answers: [
-      { text: "Leonardo da Vinci", correct: false },
-      { text: "Claude Monet", correct: false },
-      { text: "Vincent van Gogh", correct: true },
-      { text: "Pablo Picasso", correct: false }
-    ],
-    explanation: "A obra 'Noite Estrelada' é de Vincent van Gogh."
-  },
-  {
-    question: "Qual o idioma oficial do Brasil?",
-    answers: [
-      { text: "Espanhol", correct: false },
-      { text: "Português", correct: true },
-      { text: "Inglês", correct: false },
-      { text: "Francês", correct: false }
-    ],
-    explanation: "O idioma oficial do Brasil é Português."
-  },
-  {
-    question: "Verdadeiro ou falso: A água ferve a 100°C ao nível do mar.",
-    answers: [
-      { text: "Verdadeiro", correct: true },
-      { text: "Falso", correct: false }
-    ],
-    explanation: "Sim — ao nível do mar, a água ferve a 100°C sob pressão atmosférica padrão."
-  }
+const scoreOverlay = document.getElementById('score-container');
+const finalName = document.getElementById('final-name');
+const finalScoreEl = document.getElementById('final-score');
+const finalCorrect = document.getElementById('final-correct');
+const finalTotal = document.getElementById('final-total');
+const finalPercent = document.getElementById('final-percent');
+const avgTimeEl = document.getElementById('avg-time');
+
+const playAgainBtn = document.getElementById('play-again');
+const closeScoreBtn = document.getElementById('close-score');
+
+const leaderboardBtn = document.getElementById('leaderboard-btn');
+const leaderboardSection = document.getElementById('leaderboard');
+const leaderboardList = document.getElementById('leaderboard-list');
+const clearLeaderboardBtn = document.getElementById('clear-leaderboard');
+const closeLeaderboardBtn = document.getElementById('close-leaderboard');
+
+nextBtn.addEventListener('click', ()=>{ currentQuestionIndex++; setNextQuestion(); });
+startBtn.addEventListener('click', startQuiz);
+playAgainBtn.addEventListener('click', ()=> { closeScore(); startQuiz(); });
+closeScoreBtn.addEventListener('click', closeScore);
+
+leaderboardBtn.addEventListener('click', showLeaderboard);
+closeLeaderboardBtn.addEventListener('click', ()=> leaderboardSection.classList.add('hide'));
+clearLeaderboardBtn.addEventListener('click', () => { localStorage.removeItem('quiz_leaderboard'); renderLeaderboard(); });
+
+/* QUESTIONS (10 perguntas) */
+const questions = [
+  { q:"Qual é a capital da Austrália?", a:[{t:"Sydney"},{t:"Melbourne"},{t:"Canberra",correct:true},{t:"Brisbane"}], exp:"Canberra foi criada como capital como um compromisso entre Sydney e Melbourne."},
+  { q:"Qual elemento químico tem símbolo 'Fe'?", a:[{t:"Ferro",correct:true},{t:"Flúor"},{t:"Fósforo"},{t:"Francium"}], exp:"Fe = Ferrum (latim) → Ferro."},
+  { q:"Quem escreveu 'Dom Quixote'?", a:[{t:"Miguel de Cervantes",correct:true},{t:"William Shakespeare"},{t:"Machado de Assis"},{t:"Victor Hugo"}], exp:"Autor espanhol Miguel de Cervantes."},
+  { q:"Em que ano terminou a Segunda Guerra Mundial?", a:[{t:"1944"},{t:"1945",correct:true},{t:"1946"},{t:"1943"}], exp:"A guerra terminou em 1945."},
+  { q:"Qual o maior planeta do sistema solar?", a:[{t:"Terra"},{t:"Marte"},{t:"Júpiter",correct:true},{t:"Saturno"}], exp:"Júpiter é o maior em massa e volume."},
+  { q:"Verdadeiro ou falso: O corpo humano possui quatro pulmões.", a:[{t:"Verdadeiro"},{t:"Falso",correct:true}], exp:"Falso — o ser humano tem dois pulmões."},
+  { q:"Qual país é conhecido pela Torre Eiffel?", a:[{t:"Itália"},{t:"França",correct:true},{t:"Inglaterra"},{t:"Alemanha"}], exp:"A Torre Eiffel está em Paris, França."},
+  { q:"Quem pintou a 'Noite Estrelada'?", a:[{t:"Leonardo da Vinci"},{t:"Claude Monet"},{t:"Vincent van Gogh",correct:true},{t:"Pablo Picasso"}], exp:"Van Gogh pintou 'Noite Estrelada'."},
+  { q:"Qual o idioma oficial do Brasil?", a:[{t:"Espanhol"},{t:"Português",correct:true},{t:"Inglês"},{t:"Francês"}], exp:"Português é o idioma oficial."},
+  { q:"Verdadeiro ou falso: A água ferve a 100°C ao nível do mar.", a:[{t:"Verdadeiro",correct:true},{t:"Falso"}], exp:"Sim, sob pressão atmosférica padrão ao nível do mar."}
 ];
 
+/* Configuráveis */
+const TIME_PER_QUESTION = 15;       // segundos
+const BASE_POINTS = 100;           // pontos por acerto base
+const MAX_TIME_BONUS = 50;         // bônus máximo por tempo (0..MAX_TIME_BONUS)
+const STREAK_BONUS_PER = 10;      // bônus por acerto em sequência por nível
+const STREAK_BONUS_CAP = 50;      // teto do bônus por streak
+
+/* Estado */
 let currentQuestionIndex = 0;
 let score = 0;
-let timer;
-const TIME_PER_QUESTION = 15; // segundos
+let correctCount = 0;
+let streak = 0;
 let timeLeft = TIME_PER_QUESTION;
+let timer = null;
+let times = []; // array de tempos usados por pergunta
 
-startButton.addEventListener('click', startQuiz);
-nextButton.addEventListener('click', () => {
-  currentQuestionIndex++;
-  setNextQuestion();
-});
-restartButton.addEventListener('click', restartQuiz);
+totalQuestionsEl.textContent = questions.length;
 
-function startQuiz() {
-  startButton.classList.add('hide');
-  scoreContainer.classList.add('hide');
-  questionContainerElement.classList.remove('hide');
+/* START */
+function startQuiz(){
+  const name = (playerNameInput.value || 'Jogador').trim();
+  playerNameInput.value = name; // normalize
+  // reset state
   currentQuestionIndex = 0;
   score = 0;
-  totalText.innerText = questions.length;
-  totalQuestionsText.innerText = questions.length;
-  scoreText.innerText = 0;
+  correctCount = 0;
+  streak = 0;
+  times = [];
+  startBtn.classList.add('hide');
+  playerNameInput.disabled = true;
+  qb.classList.remove('hide');
   setNextQuestion();
 }
 
-function setNextQuestion() {
-  resetState();
-  showQuestion(questions[currentQuestionIndex]);
-  progressText.innerText = currentQuestionIndex + 1;
-  startTimer();
-}
-
-function showQuestion(question) {
-  questionElement.innerText = question.question;
-  answerButtonsElement.classList.remove('fade-in');
-  answerButtonsElement.classList.remove('fade-out');
-  question.answers.forEach(answer => {
-    const button = document.createElement('button');
-    button.innerText = answer.text;
-    button.classList.add('btn');
-    if (answer.correct) {
-      button.dataset.correct = answer.correct;
-    }
-    button.addEventListener('click', selectAnswer);
-    answerButtonsElement.appendChild(button);
+/* NEXT QUESTION */
+function setNextQuestion(){
+  clearState();
+  if(currentQuestionIndex >= questions.length){
+    finishQuiz();
+    return;
+  }
+  progressEl.textContent = currentQuestionIndex + 1;
+  const q = questions[currentQuestionIndex];
+  questionEl.textContent = q.q;
+  explanationEl.classList.add('hide');
+  // generate buttons
+  q.a.forEach(opt=>{
+    const btn = document.createElement('button');
+    btn.className = 'btn';
+    btn.textContent = opt.t;
+    if(opt.correct) btn.dataset.correct = 'true';
+    btn.addEventListener('click', selectAnswer);
+    answerBtns.appendChild(btn);
   });
-}
-
-function resetState() {
-  clearStatusClass(document.body);
-  nextButton.classList.add('hide');
-  clearInterval(timer);
+  // timer
   timeLeft = TIME_PER_QUESTION;
-  timerElement.innerText = timeLeft;
-  while (answerButtonsElement.firstChild) {
-    answerButtonsElement.removeChild(answerButtonsElement.firstChild);
-  }
-}
-
-function selectAnswer(e) {
-  const selectedButton = e.target;
-  const correct = selectedButton.dataset.correct === 'true';
-  setStatusClass(selectedButton, correct);
-
-  // mostra explicações para todas as opções
-  questions[currentQuestionIndex].explanation && showExplanation(questions[currentQuestionIndex].explanation);
-
-  Array.from(answerButtonsElement.children).forEach(button => {
-    setStatusClass(button, button.dataset.correct === 'true');
-    button.disabled = true;
-  });
-  if (correct) score++;
-  scoreText.innerText = score;
-
-  clearInterval(timer);
-
-  // espera um pouco antes de mostrar botão próxima
-  setTimeout(() => {
-    if (currentQuestionIndex < questions.length - 1) {
-      nextButton.classList.remove('hide');
-    } else {
-      showScore();
-    }
-  }, 1000);
-}
-
-function showExplanation(text) {
-  const expDiv = document.createElement('div');
-  expDiv.innerText = text;
-  expDiv.classList.add('explanation');
-  expDiv.style.marginTop = '15px';
-  expDiv.style.color = '#cccccc';
-  expDiv.style.fontStyle = 'italic';
-  questionContainerElement.appendChild(expDiv);
-}
-
-function showScore() {
-  questionContainerElement.classList.add('hide');
-  timerElement.parentElement.classList.add('hide'); // esconde timer também
-  nextButton.classList.add('hide');
-  scoreContainer.classList.remove('hide');
-}
-
-function restartQuiz() {
-  // volta tudo ao inicio
-  timerElement.parentElement.classList.remove('hide');
-  scoreContainer.classList.add('hide');
-  startButton.classList.remove('hide');
-}
-
-function startTimer() {
-  timerElement.innerText = timeLeft;
-  timer = setInterval(() => {
+  timerEl.textContent = timeLeft;
+  timer = setInterval(()=>{
     timeLeft--;
-    timerElement.innerText = timeLeft;
-    if (timeLeft <= 0) {
+    timerEl.textContent = timeLeft;
+    if(timeLeft <= 0){
       clearInterval(timer);
-      // se tempo acabar, considerar como erro e mostrar a próxima
-      Array.from(answerButtonsElement.children).forEach(button => {
-        if (button.dataset.correct === 'true') {
-          setStatusClass(button, true);
-        }
-        button.disabled = true;
-      });
-      questions[currentQuestionIndex].explanation && showExplanation(questions[currentQuestionIndex].explanation);
+      // mark correct answers visually and show explanation
+      revealCorrectDueToTimeout();
+      pushTime(TIME_PER_QUESTION); // user used full time
       setTimeout(() => {
-        if (currentQuestionIndex < questions.length - 1) {
-          nextButton.classList.remove('hide');
-        } else {
-          showScore();
-        }
-      }, 1000);
+        // allow next
+        if(currentQuestionIndex < questions.length - 1) nextBtn.classList.remove('hide');
+        else finishQuiz();
+      }, 900);
     }
-  }, 1000);
+  },1000);
 }
 
-function setStatusClass(element, correct) {
-  clearStatusClass(element);
-  if (correct) {
-    element.classList.add('correct');
+/* clear UI between Qs */
+function clearState(){
+  clearInterval(timer);
+  nextBtn.classList.add('hide');
+  while(answerBtns.firstChild) answerBtns.removeChild(answerBtns.firstChild);
+  explanationEl.textContent = '';
+  explanationEl.classList.add('hide');
+}
+
+/* when user selects an answer */
+function selectAnswer(e){
+  const selected = e.currentTarget;
+  const isCorrect = selected.dataset.correct === 'true';
+  // compute points BEFORE disabling
+  clearInterval(timer);
+  const usedTime = (TIME_PER_QUESTION - timeLeft);
+  pushTime(usedTime);
+
+  // scoring: base + timeBonus + streakBonus
+  let timeBonus = Math.round((timeLeft / TIME_PER_QUESTION) * MAX_TIME_BONUS); // proportional
+  let streakBonus = Math.min(streak * STREAK_BONUS_PER, STREAK_BONUS_CAP);
+  if(isCorrect){
+    streak++;
+    correctCount++;
+    const pointsThis = BASE_POINTS + timeBonus + streakBonus;
+    score += pointsThis;
+    selected.classList.add('correct');
   } else {
-    element.classList.add('wrong');
+    // reset streak on wrong answer
+    streak = 0;
+    selected.classList.add('wrong');
+    // highlight correct option
+    Array.from(answerBtns.children).forEach(b=>{ if(b.dataset.correct==='true') b.classList.add('correct'); });
   }
+
+  // disable buttons
+  Array.from(answerBtns.children).forEach(b=> b.disabled = true);
+
+  // show explanation (if exists)
+  const exp = questions[currentQuestionIndex].exp || '';
+  if(exp){
+    explanationEl.textContent = exp + ` (+${isCorrect ? (BASE_POINTS + timeBonus + Math.min((streak-1)*STREAK_BONUS_PER,STREAK_BONUS_CAP)) : 0} pts)`;
+    explanationEl.classList.remove('hide');
+  }
+
+  // show next or finish after small delay
+  setTimeout(()=> {
+    if(currentQuestionIndex < questions.length - 1){
+      nextBtn.classList.remove('hide');
+    } else {
+      finishQuiz();
+    }
+  },800);
 }
 
-function clearStatusClass(element) {
-  element.classList.remove('correct');
-  element.classList.remove('wrong');
+/* If time ends - reveal correct answer */
+function revealCorrectDueToTimeout(){
+  Array.from(answerBtns.children).forEach(b => {
+    if(b.dataset.correct === 'true') b.classList.add('correct');
+    else b.classList.add('wrong');
+    b.disabled = true;
+  });
+  explanationEl.textContent = questions[currentQuestionIndex].exp || '';
+  explanationEl.classList.remove('hide');
+  streak = 0; // reset streak on timeout
 }
+
+/* push time used to array for analytics */
+function pushTime(used){
+  times.push(used);
+}
+
+/* Finish quiz - show overlay and save to leaderboard */
+function finishQuiz(){
+  clearInterval(timer);
+  qb.classList.add('hide');
+  // compute average time
+  const avg = times.length ? (times.reduce((a,b)=>a+b,0)/times.length).toFixed(1) : 0;
+  const percent = Math.round((correctCount / questions.length) * 100);
+  // fill overlay
+  finalName.textContent = playerNameInput.value || 'Jogador';
+  finalScoreEl.textContent = score;
+  finalCorrect.textContent = correctCount;
+  finalTotal.textContent = questions.length;
+  finalPercent.textContent = percent;
+  avgTimeEl.textContent = avg;
+  scoreOverlay.classList.remove('hide');
+
+  // persist to leaderboard
+  saveToLeaderboard({ name: playerNameInput.value || 'Jogador', score, correct: correctCount, percent, avg: Number(avg), date: new Date().toISOString() });
+
+  currentQuestionIndex = 0; // reset index to allow replay if chosen
+}
+
+/* Close score overlay */
+function closeScore(){
+  scoreOverlay.classList.add('hide');
+  startBtn.classList.remove('hide');
+  playerNameInput.disabled = false;
+}
+
+/* LEADERBOARD (localStorage) */
+function getLeaderboard(){
+  try{
+    const raw = localStorage.getItem('quiz_leaderboard') || '[]';
+    return JSON.parse(raw);
+  }catch(e){ return []; }
+}
+function saveToLeaderboard(entry){
+  const list = getLeaderboard();
+  list.push(entry);
+  // sort by score desc, then percent desc, then avg asc
+  list.sort((a,b)=> b.score - a.score || b.percent - a.percent || a.avg - b.avg);
+  // keep top 50 to avoid bloat
+  const trimmed = list.slice(0,50);
+  localStorage.setItem('quiz_leaderboard', JSON.stringify(trimmed));
+  renderLeaderboard();
+}
+function renderLeaderboard(){
+  const list = getLeaderboard();
+  leaderboardList.innerHTML = '';
+  if(!list.length){
+    leaderboardList.innerHTML = '<li class="small">Sem resultados ainda — jogue para aparecer aqui!</li>';
+    return;
+  }
+  const top = list.slice(0,10);
+  top.forEach((row, idx)=>{
+    const li = document.createElement('li');
+    li.innerHTML = `<strong>#${idx+1}</strong> ${escapeHtml(row.name)} — ${row.score} pts • ${row.correct}/${questions.length} • ${row.percent}% • ${new Date(row.date).toLocaleString()}`;
+    leaderboardList.appendChild(li);
+  });
+}
+
+/* small escaping helper */
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;', "'":'&#39;'}[c])); }
+
+/* Show leaderboard overlay */
+function showLeaderboard(){
+  renderLeaderboard();
+  leaderboardSection.classList.remove('hide');
+}
+
+/* navigation: when next pressed */
+nextBtn.addEventListener('click', ()=>{
+  currentQuestionIndex++;
+  // remove any explanation node text (already done in setNextQuestion)
+  setNextQuestion();
+});
+
+/* init: render leaderboard on load (so user can open i:contentReference[oaicite:1]{index=1}:contentReference[oaicite:2]{index=2}*

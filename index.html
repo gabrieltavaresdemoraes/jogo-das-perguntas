@@ -1,31 +1,62 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Quiz de Conhecimentos Gerais - Dark Theme</title>
-  <link rel="stylesheet" href="styles.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Quiz Dark • Conhecimentos Gerais</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <div class="quiz-container" id="quiz">
-    <h1>Quiz de Conhecimentos Gerais</h1>
-    <div id="progress" class="progress">Pergunta <span id="current-question-number">0</span> de <span id="total-questions">0</span></div>
-    <div id="timer" class="timer">Tempo restante: <span id="time">15</span>s</div>
-    <div id="question-container" class="hide">
-      <div id="question">Pergunta</div>
-      <div id="answer-buttons" class="btn-grid">
-        <!-- respostas aqui -->
+    <header class="quiz-header">
+      <h1>Quiz • Conhecimentos Gerais</h1>
+      <div class="controls-top">
+        <div id="progress" class="progress">Pergunta <span id="current-question-number">0</span> / <span id="total-questions">0</span></div>
+        <div id="timer" class="timer">Tempo: <span id="time">15</span>s</div>
       </div>
-    </div>
-    <div class="controls">
-      <button id="start-btn" class="btn">Começar Quiz</button>
-      <button id="next-btn" class="btn hide">Próxima</button>
-    </div>
-    <div id="score-container" class="hide">
-      <h2>Você acertou <span id="score">0</span> de <span id="total">0</span></h2>
-      <button id="restart-btn" class="btn">Jogar de novo</button>
-    </div>
+    </header>
+
+    <main id="question-area" class="card hide">
+      <div id="question" class="question">Pergunta vai aqui</div>
+      <div id="answer-buttons" class="btn-grid"></div>
+      <div id="explanation" class="explanation hide"></div>
+    </main>
+
+    <footer class="quiz-footer">
+      <div class="actions">
+        <input id="player-name" placeholder="Seu nome (para o placar)" maxlength="20" />
+        <button id="start-btn" class="btn primary">Começar</button>
+        <button id="next-btn" class="btn hide">Próxima</button>
+        <button id="leaderboard-btn" class="btn">Placar</button>
+      </div>
+    </footer>
+
+    <section id="score-container" class="overlay hide">
+      <div class="modal">
+        <h2>Resultado</h2>
+        <p>Nome: <strong id="final-name"></strong></p>
+        <p>Pontos: <strong id="final-score"></strong></p>
+        <p>Acertos: <strong id="final-correct"></strong> / <span id="final-total"></span> (<span id="final-percent"></span>%)</p>
+        <p>Tempo médio por pergunta: <strong id="avg-time"></strong>s</p>
+        <div class="modal-actions">
+          <button id="play-again" class="btn">Jogar de novo</button>
+          <button id="close-score" class="btn">Fechar</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="leaderboard" class="overlay hide">
+      <div class="modal">
+        <h2>Placar • Top 10</h2>
+        <ol id="leaderboard-list" class="leaderboard-list"></ol>
+        <div class="modal-actions">
+          <button id="clear-leaderboard" class="btn">Limpar placar</button>
+          <button id="close-leaderboard" class="btn">Fechar</button>
+        </div>
+      </div>
+    </section>
   </div>
+
   <script src="script.js"></script>
 </body>
 </html>
