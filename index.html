@@ -11,11 +11,16 @@
     <header class="quiz-header">
       <h1>Quiz • Conhecimentos Gerais</h1>
       <div class="controls-top">
-        <div id="progress" class="progress">Pergunta <span id="current-question-number">0</span> / <span id="total-questions">0</span></div>
-        <div id="timer" class="timer">Tempo: <span id="time">15</span>s</div>
+        <div id="progress" class="progress">
+          Pergunta <span id="current-question-number">0</span> / <span id="total-questions">0</span>
+        </div>
+        <div id="timer" class="timer">
+          Tempo: <span id="time">15</span>s
+        </div>
       </div>
     </header>
 
+    <!-- Área da pergunta (manipulada por script.js) -->
     <main id="question-area" class="card hide">
       <div id="question" class="question">Pergunta vai aqui</div>
       <div id="answer-buttons" class="btn-grid"></div>
@@ -31,9 +36,10 @@
       </div>
     </footer>
 
-    <section id="score-container" class="overlay hide">
-      <div class="modal">
-        <h2>Resultado</h2>
+    <!-- Overlay de resultado / estatísticas -->
+    <section id="score-container" class="overlay hide" aria-hidden="true">
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="score-title">
+        <h2 id="score-title">Resultado</h2>
         <p>Nome: <strong id="final-name"></strong></p>
         <p>Pontos: <strong id="final-score"></strong></p>
         <p>Acertos: <strong id="final-correct"></strong> / <span id="final-total"></span> (<span id="final-percent"></span>%)</p>
@@ -45,9 +51,10 @@
       </div>
     </section>
 
-    <section id="leaderboard" class="overlay hide">
-      <div class="modal">
-        <h2>Placar • Top 10</h2>
+    <!-- Overlay do placar (leaderboard) -->
+    <section id="leaderboard" class="overlay hide" aria-hidden="true">
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="leaderboard-title">
+        <h2 id="leaderboard-title">Placar • Top 10</h2>
         <ol id="leaderboard-list" class="leaderboard-list"></ol>
         <div class="modal-actions">
           <button id="clear-leaderboard" class="btn">Limpar placar</button>

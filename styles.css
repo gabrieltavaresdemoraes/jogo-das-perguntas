@@ -1,102 +1,275 @@
-/* Dark theme, otimizado e responsivo */
-* { box-sizing: border-box; }
+/* styles.css — Tema dark otimizado para o quiz */
+
+/* =========================
+   Variáveis e reset básico
+   ========================= */
 :root{
-  --bg:#0f0f10;
-  --card:#181818;
-  --muted:#bdbdbd;
-  --accent:#ffcc00;
-  --btn:#2f2f2f;
-  --success:#28a745;
-  --danger:#dc3545;
+  --bg-1: #0b0b0c;
+  --bg-2: #121212;
+  --card: #181818;
+  --muted: #bdbdbd;
+  --text: #eeeeee;
+  --accent: #ffcc00;
+  --btn: #2f2f2f;
   --glass: rgba(255,255,255,0.03);
+  --success: #28a745;
+  --danger: #dc3545;
+  --focus: rgba(255,204,0,0.18);
+  --shadow: 0 8px 30px rgba(0,0,0,0.6);
+  --radius: 12px;
+  --max-width: 820px;
+  --transition: .18s ease;
 }
 
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html,body { height: 100%; }
 body{
-  margin:0;
-  font-family: "Segoe UI", Roboto, Arial, sans-serif;
-  background: linear-gradient(180deg,var(--bg),#0b0b0b);
-  color: #eee;
-  min-height:100vh;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:20px;
+  min-height: 100vh;
+  background: linear-gradient(180deg, var(--bg-1), var(--bg-2));
+  color: var(--text);
+  font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
 }
 
-/* Container */
+/* =========================
+   Container principal
+   ========================= */
 .quiz-container{
-  width:100%;
-  max-width:820px;
-  background:var(--card);
-  border-radius:14px;
-  padding:18px;
-  box-shadow: 0 8px 30px rgba(0,0,0,0.6);
-  border:1px solid rgba(255,255,255,0.03);
-  position:relative;
+  width: 100%;
+  max-width: var(--max-width);
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border-radius: var(--radius);
+  padding: 18px;
+  box-shadow: var(--shadow);
+  border: 1px solid rgba(255,255,255,0.03);
 }
 
 /* Header */
-.quiz-header { display:flex; flex-direction:column; gap:10px; }
-.quiz-header h1 { margin:0; font-size:20px; text-align:center; }
-.controls-top { display:flex; justify-content:space-between; gap:10px; align-items:center; }
-.progress, .timer { color:var(--muted); font-size:14px; }
+.quiz-header{
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.quiz-header h1{
+  text-align: center;
+  font-size: 20px;
+  color: var(--text);
+  letter-spacing: .2px;
+}
+.controls-top{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 2px;
+}
+.progress, .timer{
+  color: var(--muted);
+  font-size: 14px;
+}
 
-/* Card (question area) */
-.card { margin-top:12px; padding:18px; background:var(--glass); border-radius:10px; transition:all .25s; }
-.question { font-size:20px; margin-bottom:14px; color:#fff; }
+/* =========================
+   Card (area da pergunta)
+   ========================= */
+.card{
+  margin-top: 12px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border-radius: 10px;
+  padding: 18px;
+  transition: transform var(--transition), opacity var(--transition);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.45);
+  border: 1px solid rgba(255,255,255,0.02);
+}
+.card.hide{ display: none; }
 
-/* Answers grid */
-.btn-grid {
-  display:grid;
-  gap:10px;
+.question{
+  font-size: 20px;
+  color: var(--text);
+  margin-bottom: 12px;
+}
+
+/* Grid de respostas */
+.btn-grid{
+  display: grid;
+  gap: 10px;
   grid-template-columns: 1fr;
 }
-@media(min-width:560px){ .btn-grid{ grid-template-columns:repeat(2,1fr);} }
+@media (min-width:560px){
+  .btn-grid{ grid-template-columns: repeat(2, 1fr); }
+}
 
+/* =========================
+   Botões
+   ========================= */
 .btn{
-  background:var(--btn);
-  border:none;
-  padding:12px 14px;
-  border-radius:10px;
-  color:#fff;
-  cursor:pointer;
-  text-align:left;
-  transition: transform .12s, background .12s, box-shadow .12s;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.5);
-  font-size:15px;
+  background: linear-gradient(180deg, var(--btn), #3a3a3a);
+  color: var(--text);
+  border: none;
+  padding: 12px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: left;
+  font-size: 15px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.45);
+  transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
+  display: inline-block;
 }
-.btn:hover{ transform:translateY(-3px); }
+.btn:active{ transform: translateY(1px); }
+.btn:hover{ transform: translateY(-4px); box-shadow: 0 8px 18px rgba(0,0,0,0.6); }
 
-/* status styles */
-.btn.correct{ background: linear-gradient(90deg,var(--success), #1f8b4a); }
-.btn.wrong{ background: linear-gradient(90deg,var(--danger), #b03b40); opacity:0.95; }
+/* botões diferenciados */
+.btn.primary{
+  background: linear-gradient(90deg,#333,#444);
+}
+.btn.hide{ display: none; }
 
-.explanation { margin-top:12px; color:var(--muted); font-style:italic; }
-
-/* Footer */
-.quiz-footer { display:flex; justify-content:center; margin-top:14px; gap:10px; align-items:center; }
-.quiz-footer input#player-name{
-  background:transparent; border:1px dashed rgba(255,255,255,0.06);
-  color:#fff; padding:8px 10px; border-radius:8px; min-width:180px;
+/* status resposta */
+.btn.correct{
+  background: linear-gradient(90deg, var(--success), #1f8b4a);
+  color: #fff;
+  box-shadow: 0 6px 18px rgba(36,153,85,0.18);
+}
+.btn.wrong{
+  background: linear-gradient(90deg, var(--danger), #b03b40);
+  color: #fff;
+  box-shadow: 0 6px 18px rgba(176,59,64,0.12);
 }
 
-/* Buttons */
-.btn.primary{ background: linear-gradient(90deg,#333,#444); }
-.btn.hide{ display:none; }
+/* botão focus (acessibilidade) */
+.btn:focus, input:focus{
+  outline: none;
+  box-shadow: 0 0 0 4px var(--focus);
+  border-radius: 10px;
+}
 
-/* Overlay modal (score & leaderboard) */
+/* =========================
+   Explicação (feedback)
+   ========================= */
+.explanation{
+  margin-top: 12px;
+  color: var(--muted);
+  font-style: italic;
+  background: rgba(255,255,255,0.01);
+  padding: 10px;
+  border-radius: 8px;
+}
+.explanation.hide{ display:none; }
+
+/* =========================
+   Footer / Controls
+   ========================= */
+.quiz-footer{
+  display:flex;
+  justify-content:center;
+  margin-top:14px;
+}
+.actions{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  flex-wrap:wrap;
+  justify-content:center;
+  width:100%;
+}
+
+/* input do nome */
+#player-name{
+  background: transparent;
+  border: 1px dashed rgba(255,255,255,0.06);
+  color: var(--text);
+  padding: 8px 10px;
+  border-radius: 8px;
+  min-width: 180px;
+  font-size: 14px;
+}
+#player-name::placeholder{ color: rgba(255,255,255,0.35); }
+
+/* =========================
+   Overlay / modal (placar e resultado)
+   ========================= */
 .overlay{
-  position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
-  background: rgba(0,0,0,0.6); z-index:40;
+  position: fixed;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.6);
+  z-index: 40;
 }
+.overlay.hide{ display: none; }
+.overlay:not(.hide){ display: flex; }
+
 .modal{
-  width:90%; max-width:520px; background:#111; border-radius:12px; padding:18px;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.7); border:1px solid rgba(255,255,255,0.04);
+  width: 92%;
+  max-width: 560px;
+  background: #0f0f10;
+  border-radius: 12px;
+  padding: 18px;
+  border: 1px solid rgba(255,255,255,0.03);
+  box-shadow: 0 10px 40px rgba(0,0,0,0.7);
 }
-.modal h2{ margin-top:0; color:#fff; }
-.modal-actions{ display:flex; justify-content:flex-end; gap:8px; margin-top:12px; }
+.modal h2{ margin-bottom: 10px; color: var(--text); }
+.modal p{ color: var(--muted); margin: 6px 0; }
+.modal-actions{
+  display:flex;
+  justify-content:flex-end;
+  gap:8px;
+  margin-top:12px;
+}
 
-.leaderboard-list{ padding-left:18px; color:var(--muted); }
-.leaderboard-list li{ margin:6px 0; }
+/* lista do leaderboard */
+.leaderboard-list{
+  padding-left: 18px;
+  color: var(--muted);
+  max-height: 320px;
+  overflow: auto;
+}
+.leaderboard-list li{
+  margin: 8px 0;
+  line-height: 1.25;
+}
 
-.small{ font-size:13px; color:var(--muted); }
+/* small text */
+.small{ font-size: 13px; color: var(--muted); }
+
+/* =========================
+   Animações & transições
+   ========================= */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.card, .modal{
+  animation: fadeInUp .22s ease;
+}
+
+/* =========================
+   Responsividade
+   ========================= */
+@media (max-width:420px){
+  .question{ font-size: 18px; }
+  .btn{ font-size: 14px; padding: 10px 12px; }
+  .quiz-container{ padding: 14px; }
+}
+
+/* =========================
+   Utilitários
+   ========================= */
+/* esconder (classe usada pelo JS) */
+.hide{ display:none !important; }
+
+/* aparência para elementos desabilitados */
+button[disabled], .btn[disabled]{
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* pequenas melhorias visuais para foco no teclado */
+:focus { outline: none; }
