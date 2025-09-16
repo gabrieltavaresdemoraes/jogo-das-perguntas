@@ -4,35 +4,62 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Quiz Dark • Conhecimentos Gerais</title>
+
+  <!-- Tema, descrição e meta úteis -->
+  <meta name="description" content="Quiz dark de conhecimentos gerais — timer, pontuação, placar local e animações." />
+  <meta name="theme-color" content="#0b0b0c" />
+
+  <!-- Link do CSS (coloque styles.css na mesma pasta) -->
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div class="quiz-container" id="quiz">
+  <div class="quiz-container" id="quiz" role="application" aria-labelledby="quiz-title">
     <header class="quiz-header">
-      <h1>Quiz • Conhecimentos Gerais</h1>
-      <div class="controls-top">
-        <div id="progress" class="progress">
-          Pergunta <span id="current-question-number">0</span> / <span id="total-questions">0</span>
+      <h1 id="quiz-title">Quiz • Conhecimentos Gerais</h1>
+
+      <div class="controls-top" role="region" aria-label="Controles do quiz">
+        <div class="left-controls">
+          <label for="category-select" class="small">Categoria</label>
+          <select id="category-select" aria-label="Escolha a categoria">
+            <option value="All">Misturado (todas)</option>
+            <!-- categorias adicionais são adicionadas dinamicamente se existirem em questions.js -->
+            <option value="Geography">Geografia</option>
+            <option value="Science">Ciência</option>
+            <option value="History">História</option>
+            <option value="Arts">Artes</option>
+            <option value="Misc">Diversos</option>
+          </select>
         </div>
-        <div id="timer" class="timer">
-          Tempo: <span id="time">15</span>s
+
+        <div class="right-controls" aria-hidden="false">
+          <div id="progress" class="progress" aria-live="polite">
+            Pergunta <span id="current-question-number">0</span> / <span id="total-questions">0</span>
+          </div>
+          <div id="timer" class="timer" aria-live="polite">
+            Tempo: <span id="time">15</span>s
+          </div>
         </div>
       </div>
     </header>
 
-    <!-- Área da pergunta (manipulada por script.js) -->
-    <main id="question-area" class="card hide">
-      <div id="question" class="question">Pergunta vai aqui</div>
-      <div id="answer-buttons" class="btn-grid"></div>
-      <div id="explanation" class="explanation hide"></div>
+    <main id="question-area" class="card hide" role="main" aria-live="polite">
+      <div id="question" class="question" tabindex="0">Clique em Começar para iniciar o quiz</div>
+
+      <!-- Botões de resposta (gerados dinamicamente) -->
+      <div id="answer-buttons" class="btn-grid" role="list" aria-label="Opções de resposta"></div>
+
+      <!-- Explicação / feedback -->
+      <div id="explanation" class="explanation hide" aria-live="polite"></div>
     </main>
 
     <footer class="quiz-footer">
       <div class="actions">
-        <input id="player-name" placeholder="Seu nome (para o placar)" maxlength="20" />
-        <button id="start-btn" class="btn primary">Começar</button>
-        <button id="next-btn" class="btn hide">Próxima</button>
-        <button id="leaderboard-btn" class="btn">Placar</button>
+        <label for="player-name" class="small" style="display:none">Nome do jogador</label>
+        <input id="player-name" placeholder="Seu nome (para o placar)" maxlength="20" aria-label="Nome do jogador" />
+
+        <button id="start-btn" class="btn primary" type="button">Começar</button>
+        <button id="next-btn" class="btn hide" type="button">Próxima</button>
+        <button id="leaderboard-btn" class="btn" type="button">Placar</button>
       </div>
     </footer>
 
@@ -45,8 +72,8 @@
         <p>Acertos: <strong id="final-correct"></strong> / <span id="final-total"></span> (<span id="final-percent"></span>%)</p>
         <p>Tempo médio por pergunta: <strong id="avg-time"></strong>s</p>
         <div class="modal-actions">
-          <button id="play-again" class="btn">Jogar de novo</button>
-          <button id="close-score" class="btn">Fechar</button>
+          <button id="play-again" class="btn" type="button">Jogar de novo</button>
+          <button id="close-score" class="btn" type="button">Fechar</button>
         </div>
       </div>
     </section>
@@ -55,15 +82,33 @@
     <section id="leaderboard" class="overlay hide" aria-hidden="true">
       <div class="modal" role="dialog" aria-modal="true" aria-labelledby="leaderboard-title">
         <h2 id="leaderboard-title">Placar • Top 10</h2>
-        <ol id="leaderboard-list" class="leaderboard-list"></ol>
+        <ol id="leaderboard-list" class="leaderboard-list" aria-live="polite"></ol>
         <div class="modal-actions">
-          <button id="clear-leaderboard" class="btn">Limpar placar</button>
-          <button id="close-leaderboard" class="btn">Fechar</button>
+          <button id="clear-leaderboard" class="btn" type="button">Limpar placar</button>
+          <button id="close-leaderboard" class="btn" type="button">Fechar</button>
         </div>
       </div>
     </section>
   </div>
 
+  <!-- Mensagem para quem tem JS desabilitado -->
+  <noscript>
+    <div style="max-width:820px;margin:20px auto;padding:12px;background:#111;border-radius:8px;color:#f5f5f5;text-align:center;">
+      Este quiz requer JavaScript habilitado. Por favor habilite o JavaScript no seu navegador.
+    </div>
+  </noscript>
+
+  <!-- Placeholders para efeitos sonoros (opcionais)
+       - Se quiser ativar sons, adicione arquivos 'sounds/correct.mp3' e 'sounds/wrong.mp3'
+       - O script pode buscar os elementos pelos IDs: sound-correct e sound-wrong
+  -->
+  <!--
+  <audio id="sound-correct" preload="auto" src="sounds/correct.mp3"></audio>
+  <audio id="sound-wrong" preload="auto" src="sounds/wrong.mp3"></audio>
+  -->
+
+  <!-- Arquivos JS (coloque questions.js e script.js na mesma pasta) -->
+  <script src="questions.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
